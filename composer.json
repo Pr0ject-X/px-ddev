@@ -1,0 +1,21 @@
+{
+    "name": "pr0ject-x/px-ddev",
+    "description": "The project-X DDev environment type plugin.",
+    "type": "px-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Travis Tomka",
+            "email": "underoathosx@gmail.com"
+        }
+    ],
+    "require": {
+        "droath/px": "dev-master",
+        "droath/robo-ddev": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pr0jectX\\PxDDev\\": "./src"
+        }
+    }
+}

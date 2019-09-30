@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "droath/px": "dev-master",
+        "pr0ject-x/px": "dev-master",
         "droath/robo-ddev": "dev-master"
     },
     "autoload": {

@@ -2,7 +2,7 @@
 
 namespace Pr0jectX\PxDDev\ProjectX\Plugin\EnvironmentType;
 
-use Droath\ProjectX\ProjectX\Plugin\EnvironmentType\EnvironmentTypeBase;
+use Pr0jectX\Px\ProjectX\Plugin\EnvironmentType\EnvironmentTypeBase;
 use Droath\RoboDDev\Task\loadTasks as ddevTasks;
 
 /**

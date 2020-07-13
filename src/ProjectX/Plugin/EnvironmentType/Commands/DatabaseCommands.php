@@ -49,7 +49,8 @@ class DatabaseCommands extends CommandTasksBase
      * @option $filename
      *   The filename of the database export.
      */
-    public function dbExport(string $export_dir, $opts = ['filename' => 'db']): void {
+    public function dbExport(string $export_dir, $opts = ['filename' => 'db']): void
+    {
         if (!is_dir($export_dir)) {
             throw new \InvalidArgumentException(
                 'The export directory does not exist.'

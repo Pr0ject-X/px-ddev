@@ -10,8 +10,9 @@
         }
     ],
     "require": {
-        "pr0ject-x/px": "dev-master",
-        "droath/robo-ddev": "dev-master"
+        "php": ">=7.2",
+        "pr0ject-x/px": "^1.0.10",
+        "droath/robo-ddev": "^0.0.3"
     },
     "autoload": {
         "psr-4": {

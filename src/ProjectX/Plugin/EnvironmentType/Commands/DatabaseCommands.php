@@ -23,12 +23,12 @@ class DatabaseCommands extends CommandTasksBase
     /**
      * Import the database to the DDev environment.
      *
-     * @param string $source_file
-     *   The database source file.
+     * @param string $importFile
+     *   The database import file.
      */
-    public function dbImport(string $source_file): void
+    public function dbImport(string $importFile): void
     {
-        if (!file_exists($source_file)) {
+        if (!file_exists($importFile)) {
             throw new \InvalidArgumentException(
                 'The source database file does not exist.'
             );
@@ -36,7 +36,7 @@ class DatabaseCommands extends CommandTasksBase
 
         $this->taskDDevImportDb()
             ->progress()
-            ->src($source_file)
+            ->src($importFile)
             ->run();
     }
 

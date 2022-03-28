@@ -10,7 +10,7 @@ use Pr0jectX\PxDrupalVM\ProjectX\Plugin\EnvironmentType\DrupalVMEnvironmentType;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Define the DDev plugin reusable configurations.
+ * Define the DDev static instance.
  */
 class DDev
 {
@@ -32,7 +32,17 @@ class DDev
     /**
      * @var string
      */
-    public const DEFAULT_WEBSERVER_TYPE = 'apache-fpm';
+    public const DEFAULT_NODE_VERSION = 16;
+
+    /**
+     * @var string
+     */
+    public const DEFAULT_WEB_ROOT = '/var/www/html';
+
+    /**
+     * @var string
+     */
+    public const DEFAULT_WEBSERVER_TYPE = 'nginx-fpm';
 
     /**
      * @var array
@@ -45,7 +55,7 @@ class DDev
      * @return string
      *   The root path of the plugin.
      */
-    public static function rootPath() : string
+    public static function rootPath(): string
     {
         return dirname(__DIR__);
     }
@@ -56,7 +66,7 @@ class DDev
     public static function printBanner(): void
     {
         print file_get_contents(
-           static::rootPath() . '/banner.txt'
+            static::rootPath() . '/banner.txt'
         );
     }
 
@@ -81,12 +91,72 @@ class DDev
      * @return string[]
      *   An array of docker services.
      */
-    public static function services()
+    public static function services(): array
     {
         return [
             'db' => 'Database',
             'web' => 'Web'
         ];
+    }
+
+    /**
+     * Available DDev node versions.
+     *
+     * @return int[]
+     *   An array of the supported node versions.
+     */
+    public static function nodeVersions(): array
+    {
+        return [12, 14, 16, 17];
+    }
+
+    /**
+     * Available DDev frameworks.
+     *
+     * @return array
+     *   An array of supported frameworks.
+     */
+    public static function frameworks(): array
+    {
+        return [
+            'drupal' => [
+                'label' => 'Drupal',
+                'versions' => [6, 7, 8, 9, 10]
+            ],
+            'magento' => [
+                'label' => 'Magento',
+                'versions' => [1, 2]
+            ],
+            'backdrop' => [
+                'label' => 'Backdrop'
+            ],
+            'php' => ['label' => 'PHP'],
+            'typo3' => ['label' => 'Typo3'],
+            'laravel' => ['label' => 'Laravel'],
+            'shopware6' => ['label' => 'Shopware'],
+            'wordpress' => ['label' => 'WordPress'],
+        ];
+    }
+
+    /**
+     * Resolve the docker service.
+     *
+     * @param string $service
+     *   The ddev service name.
+     *
+     * @return string|null
+     *   The docker service name.
+     */
+    public static function resolveDockerService(
+        string $service
+    ): ?string {
+        $dockerService = null;
+
+        if ($name = static::configValue('name')) {
+            $dockerService = "ddev-$name-$service";
+        }
+
+        return $dockerService;
     }
 
     /**
@@ -114,12 +184,12 @@ class DDev
      * @param string $name
      *   The DDev configuration property name.
      *
-     * @return bool|mixed
-     *   The DDev configuration value; otherwise FALSE.
+     * @return null|mixed
+     *   The DDev configuration value; otherwise null.
      */
     public static function configValue(string $name)
     {
-        return static::loadConfigs()[$name] ?? FALSE;
+        return static::loadConfigs()[$name] ?? null;
     }
 
     /**

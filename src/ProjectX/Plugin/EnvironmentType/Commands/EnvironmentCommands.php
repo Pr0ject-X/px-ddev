@@ -15,6 +15,19 @@ use Symfony\Component\Console\Input\InputOption;
 class EnvironmentCommands extends PluginCommandTaskBase
 {
     /**
+     * @hook option env:debug
+     */
+    public function addDebugOptions(Command $command)
+    {
+        $command->addOption(
+            'xdebug',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Enable or disable xdebug using (on/off).',
+        );
+    }
+
+    /**
      * @hook option env:execute
      */
     public function addExecuteOptions(Command $command): void

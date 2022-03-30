@@ -75,11 +75,49 @@ class DDevEnvironmentType extends EnvironmentTypeBase implements PluginConfigura
             ->webserverType($configs['webserver_type'])
             ->disableSettingsManagement();
 
-        if ($this->confirm('Enable XDebug?', true)) {
-            $task->xdebugEnabled();
-        }
-
         $task->run();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setup(array $opts = []): void
+    {
+        try {
+            if (
+                !DDev::configValue('mutagen_enabled', true)
+                && $this->confirm('Enable mutagen (which improves performance)?', true)
+            ) {
+                $this->taskDDevConfig()
+                    ->arg('global')
+                    ->option('mutagen-enabled')
+                    ->run();
+            }
+            $this->success(
+                'All DDEV prerequisites have been set up!'
+            );
+        } catch (\Exception $exception) {
+            $this->error($exception->getMessage());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function debug(array $opts = []): void
+    {
+        try {
+            if (
+                isset($opts['xdebug'])
+                && in_array($opts['xdebug'], ['on', 'off'], true)
+            ) {
+                $this->taskDDevXdebug()
+                    ->arg($opts['xdebug'])
+                    ->run();
+            }
+        } catch (\Exception $exception) {
+            $this->error($exception->getMessage());
+        }
     }
 
     /**

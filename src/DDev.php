@@ -27,6 +27,11 @@ class DDev
     /**
      * @var string
      */
+    public const GLOBAL_CONFIG_FILE = 'global_config.yaml';
+
+    /**
+     * @var string
+     */
     public const DEFAULT_SERVICE = 'web';
 
     /**
@@ -139,10 +144,10 @@ class DDev
     }
 
     /**
-     * Resolve the docker service.
+     * Resolve the DDEV docker service.
      *
      * @param string $service
-     *   The ddev service name.
+     *   The docker service name.
      *
      * @return string|null
      *   The docker service name.
@@ -160,25 +165,6 @@ class DDev
     }
 
     /**
-     * Load DDev configs.
-     *
-     * @return array
-     *   An array of DDev configs.
-     */
-    public static function loadConfigs(): array
-    {
-        if (static::hasConfigFile()) {
-            if (!isset(static::$configs) || empty(static::$configs)) {
-                static::$configs = Yaml::parseFile(
-                    static::configFilePath()
-                );
-            }
-        }
-
-        return static::$configs;
-    }
-
-    /**
      * Retrieve a DDev config value.
      *
      * @param string $name
@@ -187,20 +173,28 @@ class DDev
      * @return null|mixed
      *   The DDev configuration value; otherwise null.
      */
-    public static function configValue(string $name)
+    public static function configValue(string $name, $global = false)
     {
-        return static::loadConfigs()[$name] ?? null;
+        return static::loadConfigs($global)[$name] ?? null;
     }
 
     /**
-     * Has DDev configuration been set.
+     * Load DDev configs.
      *
-     * @return bool
-     *   Return true if configuration exist; otherwise false.
+     * @return array
+     *   An array of DDev configs.
      */
-    public static function hasConfigFile(): bool
+    protected static function loadConfigs($global = false): array
     {
-        return file_exists(static::configFilePath());
+        $type = $global ? 'global' : 'project';
+
+        if (!isset(static::$configs[$type]) || empty(static::$configs[$type])) {
+            if ($path = static::configFilePath($global)) {
+                static::$configs[$type] = Yaml::parseFile($path);
+            }
+        }
+
+        return static::$configs[$type];
     }
 
     /**
@@ -209,12 +203,12 @@ class DDev
      * @return string
      *   The configuration file path.
      */
-    public static function configFilePath(): string
+    protected static function configFilePath($global = false): string
     {
         return implode(DIRECTORY_SEPARATOR, [
-            PxApp::projectRootPath(),
+            $global ? PxApp::userDir() : PxApp::projectRootPath(),
             static::CONFIG_DIR,
-            static::CONFIG_FILE
+            $global ? static::GLOBAL_CONFIG_FILE : static::CONFIG_FILE
         ]);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pr0jectX\PxDDev\ProjectX\Plugin\EnvironmentType;
 
 use Droath\RoboDDev\Task\loadTasks as ddevTasks;
+use Pr0jectX\Px\CommonCommandTrait;
 use Pr0jectX\Px\ConfigTreeBuilder\ConfigTreeBuilder;
 use Pr0jectX\Px\ProjectX\Plugin\EnvironmentType\EnvironmentTypeBase;
 use Pr0jectX\Px\ProjectX\Plugin\EnvironmentType\EnvironmentDatabase;
@@ -26,6 +27,7 @@ use Symfony\Component\Console\Question\Question;
 class DDevEnvironmentType extends EnvironmentTypeBase implements PluginConfigurationBuilderInterface
 {
     use ddevTasks;
+    use CommonCommandTrait;
 
     /**
      * {@inheritDoc}
@@ -66,7 +68,6 @@ class DDevEnvironmentType extends EnvironmentTypeBase implements PluginConfigura
 
         $task = $this->taskDDevConfig()
             ->docroot($configs['app_root'])
-            ->hostDbPort(3306)
             ->projectTld('test')
             ->projectType($this->getProjectType())
             ->phpVersion($configs['php_version'])
@@ -200,9 +201,12 @@ class DDevEnvironmentType extends EnvironmentTypeBase implements PluginConfigura
      */
     public function envDatabases(): array
     {
+        $service = DDev::resolveDockerService('db');
+        $port = $this->getDockerHostPort($service, 3306);
+
         return [
             EnvironmentTypeInterface::ENVIRONMENT_DB_PRIMARY => (new EnvironmentDatabase())
-                ->setPort(3306)
+                ->setPort($port)
                 ->setType('mysql')
                 ->setHost('db')
                 ->setUsername('db')
@@ -360,6 +364,33 @@ class DDevEnvironmentType extends EnvironmentTypeBase implements PluginConfigura
         }
 
         return $type;
+    }
+
+    /**
+     * Get docker container host port.
+     *
+     * @param string $service
+     *   The docker service name.
+     * @param int $containerPort
+     *   The docker container port.
+     *
+     * @return int|null
+     */
+    protected function getDockerHostPort(
+        string $service,
+        int $containerPort
+    ): ?int {
+        $task = $this->taskExec('docker inspect')
+            ->arg($service)
+            ->option('-f', "{{(index (index .NetworkSettings.Ports \"$containerPort/tcp\") 0).HostPort}}");
+
+        $result = $this->runSilentCommand($task);
+
+        if (!$result->wasSuccessful()) {
+            return null;
+        }
+
+        return (int) $result->getMessage();
     }
 
     /**

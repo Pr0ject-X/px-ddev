@@ -261,11 +261,12 @@ class DDevEnvironmentType extends EnvironmentTypeBase implements PluginConfigura
         $configs = $this->getConfigurations();
         $configBuilder = $this->configTreeInstance();
 
+        $appRoot = $configs['app_root'] ?? null;
         $configBuilder->createNode('app_root')
             ->setValue($this->requiredQuestion(
                 new Question(
-                    $this->formatQuestionDefault('Input the application root', $configs['app_root']),
-                    $configs['app_root']
+                    $this->formatQuestionDefault('Input the application root', $appRoot),
+                    $appRoot
                 ),
                 'The application root is required!'
             ))

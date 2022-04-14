@@ -62,20 +62,41 @@ class DDevEnvironmentType extends EnvironmentTypeBase implements PluginConfigura
      */
     public function init(array $opts = []): void
     {
-        DDev::printBanner();
+        try {
+            DDev::printBanner();
+            $configs = $this->getConfigurations();
 
-        $configs = $this->getConfigurations();
+            /** @var \Droath\RoboCommandBuilder\CommandBuilderTask $task */
+            $task = $this->taskDDevConfig()
+                ->docroot($configs['app_root'])
+                ->projectTld('test')
+                ->projectType($this->getProjectType())
+                ->phpVersion($configs['php_version'])
+                ->nodejsVersion($configs['node_version'])
+                ->webserverType($configs['webserver_type'])
+                ->disableSettingsManagement();
 
-        $task = $this->taskDDevConfig()
-            ->docroot($configs['app_root'])
-            ->projectTld('test')
-            ->projectType($this->getProjectType())
-            ->phpVersion($configs['php_version'])
-            ->nodejsVersion($configs['node_version'])
-            ->webserverType($configs['webserver_type'])
-            ->disableSettingsManagement();
+            $result = $task->run();
 
-        $task->run();
+            if ($result->wasSuccessful()) {
+                $command = null;
+                /** @var \Pr0jectX\Px\PxApp $application */
+                $application = PxApp::service('application');
+                $envRunning = PxApp::getEnvironmentInstance()->isRunning();
+
+                if (!$envRunning && $this->confirm('Start the environment?', true)) {
+                    $command = $application->find('env:up');
+                } elseif ($envRunning && $this->confirm('Restart the environment?', true)) {
+                    $command = $application->find('env:restart');
+                }
+
+                if (isset($command)) {
+                    $this->taskSymfonyCommand($command)->run();
+                }
+            }
+        } catch (\Exception $exception) {
+            $this->error($exception->getMessage());
+        }
     }
 
     /**

@@ -258,16 +258,19 @@ class DDevEnvironmentType extends EnvironmentTypeBase implements PluginConfigura
     /**
      * {@inheritDoc}
      */
-    public function envDatabases(): array
+    public function envDatabases(bool $internal = false): array
     {
-        $service = DDev::resolveDockerService('db');
-        $port = $this->getDockerHostPort($service, 3306);
+        $host = $internal ? 'db' : '127.0.0.1';
+        $port = $internal ? 3306 : $this->getDockerHostPort(
+            DDev::resolveDockerService('db'),
+            3306
+        );
 
         return [
             EnvironmentTypeInterface::ENVIRONMENT_DB_PRIMARY => (new EnvironmentDatabase())
+                ->setHost($host)
                 ->setPort($port)
                 ->setType('mysql')
-                ->setHost('db')
                 ->setUsername('db')
                 ->setPassword('db')
                 ->setDatabase('db')

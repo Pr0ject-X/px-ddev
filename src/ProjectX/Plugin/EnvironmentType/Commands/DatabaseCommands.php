@@ -128,8 +128,8 @@ class DatabaseCommands extends DatabaseCommandTaskBase
     protected function createLaunchDatabase(): DatabaseInterface
     {
         return ($this->environmentInstance()->selectEnvDatabase(
-            EnvironmentTypeInterface::ENVIRONMENT_DB_PRIMARY
-        ))->setHost('127.0.0.1');
+            EnvironmentTypeInterface::ENVIRONMENT_DB_PRIMARY,
+        ));
     }
 
     /**

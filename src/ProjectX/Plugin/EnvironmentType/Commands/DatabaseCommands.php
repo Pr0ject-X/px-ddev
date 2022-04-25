@@ -116,7 +116,7 @@ class DatabaseCommands extends DatabaseCommandTaskBase
         ];
 
         if (isset($config['env_type']) && in_array($config['env_type'], $envTypes, true)) {
-            return $this->environmentInstance()->selectEnvDatabase($config['env_type']);
+            return $this->environmentInstance()->selectEnvDatabase($config['env_type'], true);
         }
 
         return null;

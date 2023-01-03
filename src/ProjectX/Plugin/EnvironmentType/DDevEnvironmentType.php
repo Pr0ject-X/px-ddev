@@ -70,12 +70,21 @@ class DDevEnvironmentType extends EnvironmentTypeBase implements PluginConfigura
             $task = $this->taskDDevConfig()
                 ->docroot($configs['app_root'])
                 ->projectTld('test')
+                ->projectName($configs['hostname'])
                 ->projectType($this->getProjectType())
                 ->phpVersion($configs['php_version'])
                 ->nodejsVersion($configs['node_version'])
                 ->webserverType($configs['webserver_type'])
                 ->disableSettingsManagement();
 
+            if (
+                isset($configs['additional_hostnames'])
+                && !empty($configs['additional_hostnames'])
+            ) {
+                $task->additionalHostnames(
+                    $configs['additional_hostnames']
+                );
+            }
             $result = $task->run();
 
             if ($result->wasSuccessful()) {
@@ -336,11 +345,16 @@ class DDevEnvironmentType extends EnvironmentTypeBase implements PluginConfigura
         $phpVersion = $configs['php_version'] ?? $phpVersions[1];
         $configBuilder->createNode('php_version')
             ->setValue($this->requiredQuestion(
-                new ChoiceQuestion(
+                (new ChoiceQuestion(
                     $this->formatQuestionDefault('Select the application PHP version', $phpVersion),
                     $phpVersions,
                     $phpVersion
-                ),
+                ))->setNormalizer(function (string $value) use ($phpVersions) {
+                    if (!in_array($value, $phpVersions, true)) {
+                        return $phpVersions[$value];
+                    }
+                    return $value;
+                }),
                 'The PHP version is required!'
             ))
             ->end();

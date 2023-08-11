@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=7.3",
-        "pr0ject-x/px": "^1.0.21",
+        "pr0ject-x/px": "^1.0.21|^2.0",
         "droath/robo-ddev": "^0.0.7"
     },
     "require-dev": {

@@ -14,7 +14,7 @@
     "require": {
         "php": ">=7.3",
         "pr0ject-x/px": "^1.0.21|^2.0",
-        "droath/robo-ddev": "^0.0.7"
+        "droath/robo-ddev": "^0.0.9"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.5",
